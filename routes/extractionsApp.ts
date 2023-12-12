@@ -7,6 +7,50 @@ import fs from "fs-extra";
 const extractions = async (app: Application, db: any) => {
   var upload = multer({ dest: "uploads/" });
 
+
+  app.post(
+    "/readexceltopics",
+    upload.single("file"),
+    async (req: Request, res: Response) => {
+      try {
+        if (req.file?.filename === null || req.file?.filename === undefined) {
+          res.send({ status: 400 });
+        } else {
+          let filePath = "uploads/" + req.file.filename;
+
+          const excelData = excelToJson({
+            sourceFile: filePath,
+            header: {
+              rows: 1,
+            },
+            columnToKey: {
+              "*": "{{columnHeader}}",
+            },
+          });
+          fs.remove(filePath);
+          const myArray = Object.values(excelData);
+
+          // add to DB
+          if (myArray && myArray.length > 0) {
+            const dataResult = myArray[0];
+            const dataFinal = dataResult.map((resValue) => {
+              return {
+                id: crypto.randomUUID(),
+                ...resValue,
+              };
+            });
+            await db.push("/topics", dataFinal, false);
+
+            res.send({ status: 200 });
+          } else {
+            res.send({ status: 400 });
+          }
+        }
+      } catch (error) {
+        res.send({ status: 500, error });
+      }
+    }
+  );
   app.post(
     "/readexcelquestions",
     upload.single("file"),
@@ -31,11 +75,11 @@ const extractions = async (app: Application, db: any) => {
 
           // add to DB
           if (myArray && myArray.length > 0) {
-            const guests = myArray[0];
-            const dataFinal = guests.map((guest) => {
+            const dataResult = myArray[0];
+            const dataFinal = dataResult.map((resValue) => {
               return {
                 id: crypto.randomUUID(),
-                ...guest,
+                ...resValue,
               };
             });
             await db.push("/questions", dataFinal, false);

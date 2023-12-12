@@ -11,6 +11,9 @@ import extractionRoutes from "./extractions"; */
 
 import questionRoutes from "./questions";
 import extractionAppRoutes from "./extractionsApp";
+import topicsAppRoutes from "./topics";
+import responsesAppRoutes from "./responses";
+
 
 const appRouter = (app: Application) => {
   // we've added in a default route here that handles empty routes
@@ -26,6 +29,8 @@ const appRouter = (app: Application) => {
 
   questionRoutes(app, db);
   extractionAppRoutes(app, db);
+  topicsAppRoutes(app, db);
+  responsesAppRoutes(app, db);
 };
 
 // this line is unchanged

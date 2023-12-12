@@ -26,6 +26,7 @@ const userRoutes = async (app: Application, db: any) => {
       {
         id: uuID,
         name: req.body?.name,
+        createdAt: new Date().toISOString()
       },
       true
     );
